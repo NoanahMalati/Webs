@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Spline</title>
+
+<script> 
+  /*
+   * Name:  Iris Gao
+   * Description: An algorithm that can find and draw basis for splines over triangles and squares marked with integer edges.   
+   * 
+   */
+  
+  var canvas;    // DOM object corresponding to the canvas
+  var graphics;  // 2D graphics context for drawing on the canvas
+  var i = 1; // number of loops
+
+  /**
+  * Find the basis of a triangle.  
+  * @param e1: bottom edge
+  * @param e2: middle edge
+  * @param e3: top edge 
+  * @return basis: a list of list in form of [bottom vertex, top vertex, middle vertex]    
+  */
+  function triangle(e1,e2,e3) { 
+    var basis = [];
+    basis.push([1,1,1]);
+    var num = e1 + e3;
+    while (num % e2 != 0) {
+      num += e3;
+    } 
+    basis.push([0,num,e1]);  
+    basis.push([0,lcm(e2,e3),0]);
+    return basis; 
+  } 
+
+  /**
+  * Find the basis of a square.   
+  * @param e1: bottom left edge
+  * @param e2: top left edge
+  * @param e3: top right edge 
+  * @param e4: bottom right edge  
+  * @return basis: a list of list in form of [left vertex, top vertex, right vertex, bottom vertex]     
+  */
+  function square(e1,e2,e3,e4) {
+    var num_list = [];
+    var basis = [];
+    // first basis
+    basis.push([1,1,1,1]);
+    // second basis
+    num_list = findNumber(e1,e1,e3,e2);
+    basis.push([0,num_list[1],num_list[0],e1]);
+    // third basis
+    num_list = findNumber(e4,e4,e3,e2);
+    basis.push([0,num_list[1],num_list[0],0]);
+    // fourth basis
+    basis.push([0,lcm(e2,e3),0,0]);
+    return basis; 
+  }  
+
+  function findNumber(begin_num, new_num, edge, divisor) {
+    var num = new_num;
+    var count = 0; 
+    var return_list = [];
+    
+    while (count < 15) {
+      count += 1;  
+      if (num % divisor == 0) { // if we find the number 
+        i = 1; // restore the tracker to original state
+        return [new_num,num];
+      } 
+      num += edge;
+    } 
+    i += 1;
+    return findNumber(begin_num, i*begin_num, edge, divisor);
+  }
+  
+
+  // Find the greatest common divisor of two integers.     
+  function gcd(x,y) { 
+    if (y>x) {
+      var n = x; 
+      x = y;
+      y = n; 
+    }
+    while(y) {
+      var t = y;
+      y = x % y;
+      x = t;
+    }
+    return x;
+  }
+
+  // Find the least common multiple of two integers.  
+  function lcm(x,y) { 
+    return x*y/gcd(x,y); 
+  }
+  
+  /**
+  * Find and draw basis of a triangle. 
+  * @param e1: bottom edge
+  * @param e2: middle edge
+  * @param e3: top edge 
+  */
+  function drawBasis3(e1,e2,e3) {
+    basis = triangle(e1,e2,e3);
+    drawPolygon(3, 50, 100, 50, [e1,e2,e3], basis[0]);
+    drawPolygon(3, 200, 100, 50, [e1,e2,e3], basis[1]);
+    drawPolygon(3, 350, 100, 50, [e1,e2,e3], basis[2]);
+  }
+
+  /**
+  * Find and draw basis of a square. 
+  * @param e1: bottom left edge
+  * @param e2: top left edge
+  * @param e3: top right edge 
+  * @param e4: bottom right edge 
+  */
+  function drawBasis4(e1,e2,e3,e4) {
+    basis = square(e1,e2,e3,e4);  
+    drawPolygon(4, 50, 100, 50, [e1,e2,e3,e4], basis[0]);
+    drawPolygon(4, 200, 100, 50, [e1,e2,e3,e4], basis[1]);
+    drawPolygon(4, 350, 100, 50, [e1,e2,e3,e4], basis[2]);
+    drawPolygon(4, 500, 100, 50, [e1,e2,e3,e4], basis[3]);
+  }
+  
+  /**
+  * Draw a polygon.  
+  * @param n: number of edges 
+  * @param cx & cy: position 
+  * @param r: radius
+  * @param edges: [bottom edge, middle edge, top edge]
+  * @param vertices: [bottom vertex, top vertex, middle vertex]
+  */
+  function drawPolygon(n, cx, cy, r, edges, vertices) { 
+    
+    var theta = 2*Math.PI/n; 
+
+    graphics.beginPath();
+    graphics.moveTo(cx+r,cy);
+    graphics.font = "30px Arial";
+    
+    for (var i = 0; i < n; i++) {
+      var x = cx+r*Math.cos(i*theta);
+      var y = cy+r*Math.sin(i*theta);
+      graphics.lineTo(x,y);
+      graphics.fillStyle = "blue";
+      graphics.fillText(edges[(i+2)%n], cx+r*Math.cos((2*i-1)*theta/2),cy+r*Math.sin((2*i-1)*theta/2));
+      graphics.fillStyle = "black"; 
+      graphics.fillText(vertices[(i+2)%n], x,y); 
+    }
+    graphics.closePath();
+    graphics.stroke();
+  }
+
+  function init() {
+    canvas = document.getElementById("theCanvas");
+    graphics = canvas.getContext("2d");
+    // drawBasis3(12,9,6);
+    // drawBasis3(4,10,6);
+    
+    // drawBasis4(2,3,2,3);
+    // drawBasis4(3,2,3,4);
+    // drawBasis4(3,2,4,3); 
+    drawBasis4(5,2,7,4); 
+     
+  }
+
+
+</script>
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="600" height="300"></canvas>
+</body>
+</html>
