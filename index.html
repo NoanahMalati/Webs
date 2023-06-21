@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SURF</title>
+
+
+<script>
+    /*
+     * Name:  Yina
+     */
+    
+    var canvas;    // DOM object corresponding to the canvas
+    var graphics;  // 2D graphics context for drawing on the canvas
+
+    // note: change both for a different background color
+    var backgroundColor = "white";
+    var backgroundRGB = [255,255,255,255];
+
+
+
+  
+    // draws a regular polygon with n sides, centered at (cx,cy), with radius r
+    function regularPolygon(array, cx, cy, r, vertice) {
+      var n =array.length
+      //console.log(n)
+      var theta=(2*Math.PI)/n;
+      graphics.beginPath();
+      graphics.moveTo(cx+r*Math.cos(1*theta), cy+r*Math.sin(1*theta));
+      //var loc=findEdge(cx+r*Math.cos(1*theta), cy+r*Math.sin(1*theta), cx, cy);
+        graphics.font = "15px Arial";
+        graphics.fillStyle="Black"
+        graphics.fillText(vertice[0], cx+r*Math.cos(1*theta), cy+r*Math.sin(1*theta))
+        graphics.font = "15px Arial";
+        graphics.fillStyle="Blue"
+        graphics.fillText(array[0], cx+r*Math.cos(1.5*theta), cy+r*Math.sin(1.5*theta))
+      for(var i=2; i< n+1; i++){
+        graphics.lineTo(cx+r*Math.cos(i*theta), cy+r*Math.sin(i*theta));
+        //loc=findEdge(cx+r*Math.cos(i*theta), cy+r*Math.sin(i*theta), cx, cy);
+        //console.log(loc[0], loc[1])
+        graphics.font = "15px Arial";
+        graphics.fillStyle="Black"
+        graphics.fillText(vertice[i-1], cx+r*Math.cos(i*theta), cy+r*Math.sin(i*theta))
+        graphics.font = "15px Arial";
+        graphics.fillStyle="Blue"
+        graphics.fillText(array[i-1], cx+r*Math.cos((i+0.5)*theta), cy+r*Math.sin((i+0.5)*theta))
+
+      }
+
+      graphics.closePath();
+      graphics.stroke();
+    }
+
+
+  function drawPolygons(array){
+    var n= array.length;
+    var x= 0;
+    var y= 0; 
+    var vertices =findBasic(array);
+    for(var i = 0; i< n; i++){
+      if (75+x*125>400){
+        y+=1;
+        x=0;
+      }
+      regularPolygon(array, 75+x*150, 75+y*180, 50, vertices[i]);
+      x++;
+    }
+  }
+
+  function findBasic(array){
+    var n= array.length
+    var basic =new Array(array.length)
+    for (var i = 0; i < array.length; i++) {
+      basic[i]=[]
+    }
+    for (var i = 1; i <= array.length; i++) {
+      basic[0].push(1);
+      basic[n-1].push(0);
+    }
+    basic[n-1][n-1]= lcm(array[n-2], array[n-1])
+
+    for(var i =1; i< array.length-1;  i++){
+      for(var j =0; j<i; j++){
+        basic[i].push(0)
+      }
+      var num =0;
+      var times = 0;
+      for(var j =i; j<n-2; j++){
+        if(times%2==0){
+          num += array[j-1];
+        }
+        else{
+          num -= array[j-1];
+        }
+        times++
+        basic[i].push(num)
+      }
+      var num1;
+      var br= false
+      var be= false
+      var num2;
+      var plus_minus_num1, plus_minus_num2, plus_plus_num1, plus_plus_num2, minus_plus_num1, minus_plus_num2, minus_minus_num1, minus_minus_num2
+      var plus_possible_num1;
+      var minus_possible_num1;
+      for(var x=1; x<=array[n-2]; x++){
+        num1= num+array[n-3]*x
+        for(var y=1; y<=array[n-1]; y++){
+          num2= num1-array[n-2]*y
+          if(num2%array[n-1]==0){
+            plus_minus_num1=num1;
+            plus_minus_num2=num2
+            br= true;
+            break;
+          }
+        }
+        for(var y=1; y<=array[n-1]; y++){
+          num2= num1+array[n-2]*y
+          if(num2%array[n-1]==0){
+            plus_plus_num1=num1;
+            plus_plus_num2=num2
+            be= true;
+            break;
+          }
+        }
+        if(br&&be){
+          break;
+        }
+      }
+      var bt=false
+      var bw=false
+      for(var x=1; x<=array[n-2]; x++){
+        num1= num-array[n-3]*x
+        for(var y=1; y<=array[n-1]; y++){
+          num2= num1+array[n-2]*y
+          if(num2%array[n-1]==0){
+            minus_plus_num1=num1;
+            minus_plus_num2=num2
+            bt= true;
+            break;
+          }
+        }
+        for(var y=1; y<=array[n-1]; y++){
+          num2= num1-array[n-2]*y
+          if(num2%array[n-1]==0){
+            minus_minus_num1=num1;
+            minus_minus_num2=num2
+            bt= true;
+            break;
+          }
+        }
+        
+        if(bt&&bw){
+          break;
+        }
+      }
+
+      var min = Math.min(Math.abs(plus_plus_num1)+Math.abs(plus_plus_num2), Math.abs(plus_minus_num1)+Math.abs(plus_minus_num2),Math.abs(minus_minus_num1)+Math.abs(minus_minus_num2),Math.abs(minus_plus_num1)+Math.abs(minus_plus_num2))
+
+      // var choice = [Math.abs(plus_plus_num1)+Math.abs(plus_plus_num2), Math.abs(plus_minus_num1)+Math.abs(plus_minus_num2),Math.abs(minus_minus_num1)+Math.abs(minus_minus_num2),Math.abs(minus_plus_num1)+Math.abs(minus_plus_num2)]
+
+
+      // console.log(minus_minus_num1)
+      // console.log(minus_minus_num2)
+  
+      // console.log(minus_plus_num1)
+      // console.log(minus_plus_num2)
+      
+      // console.log(choice)
+
+      
+      if(min==Math.abs(plus_plus_num1)+Math.abs(plus_plus_num2)){
+        basic[i].push(plus_plus_num1)
+        basic[i].push(plus_plus_num2)
+        
+      }
+      else if(min==Math.abs(plus_minus_num1)+Math.abs(plus_minus_num2)){
+        basic[i].push(plus_minus_num1)
+        basic[i].push(plus_minus_num2)
+      }
+      else if(min==Math.abs(minus_minus_num1)+Math.abs(minus_minus_num2)){
+        basic[i].push(minus_minus_num1)
+        basic[i].push(minus_minus_num2)
+      }
+      else{
+        basic[i].push(minus_plus_num1)
+        basic[i].push(minus_plus_num2)
+      }
+      
+
+      
+    }
+    for (var i = 0; i< n; i++){
+        console.log(basic[i])
+      }
+      return basic
+  }
+
+  function gcd(x,y) { 
+    x = Math.abs(x);
+    y = Math.abs(y);
+    while(y) {
+      var t = y;
+      y = x % y;
+      x = t;
+    }
+    return x;
+  }
+
+  
+  function lcm(x,y) { 
+    return x*y/gcd(x,y); 
+  }
+
+  function findEdge(x_1,y_1,cx_1,cy_1){
+    var loc_x, loc_y;
+    var x= Math.floor(x_1)
+    var y= Math.floor(y_1)
+    var cx= Math.floor(cx_1)
+    var cy= Math.floor(cy_1)
+    if(cx==x){
+      loc_x=cx
+      if(cy>y){
+        loc_y=y-7
+      }
+      else{
+        loc_y=y+7
+      }
+      //return [loc_x,loc_y]
+    }
+    else if(cy==y){
+      loc_y=cy
+      if(cy>x){
+        loc_x=x-7
+      }
+      else{
+        loc_x=x+7
+      }
+ 
+      //return [loc_x,loc_y]
+    }
+    else{
+      if(cx>x){
+        loc_x=x-7
+        if(cy>y){
+          loc_y=y-7
+        }
+        else{
+          loc_y=y+7
+        }
+      }
+      else{
+        loc_x=x+7
+        if(cy>y){
+          loc_y=y-7
+        }
+        else{
+          loc_y=y+7
+        }
+      }
+    }
+    return [loc_x,loc_y]
+  }
+
+  function findEdge_2(x_1,y_1,cx_1,cy_1){
+    var loc_x, loc_y;
+    var x= Math.floor(x_1)
+    var y= Math.floor(y_1)
+    var cx= Math.floor(cx_1)
+    var cy= Math.floor(cy_1)
+    if(cx==x){
+      loc_x=cx
+      if(cy>y){
+        loc_y=y-5
+      }
+      else{
+        loc_y=y+5
+      }
+      return [loc_x,loc_y]
+    }
+    else if(cy==y){
+      loc_y=cy
+      if(cy>x){
+        loc_x=x-5
+      }
+      else{
+        loc_x=x+5
+      }
+      return [loc_x,loc_y]
+    }
+    else{
+      if(cx>x){
+        loc_x=x+5
+        if(cy>y){
+          loc_y=y+5
+        }
+        else{
+          loc_y=y-5
+        }
+      }
+      else{
+        loc_x=x-5
+        if(cy>y){
+          loc_y=y+5
+        }
+        else{
+          loc_y=y-5
+        }
+      }
+    }
+    return [loc_x,loc_y]
+  }
+
+    
+    function draw() {
+        // make sure to color the background first, since it doesn't have a default color
+        graphics.fillStyle = backgroundColor;
+        graphics.fillRect(0,0,canvas.width,canvas.height);
+        var array =[5,7,7,4]
+        drawPolygons(array);
+    }
+
+    function init() {
+        canvas = document.getElementById("theCanvas");
+        graphics = canvas.getContext("2d");
+      
+        draw();  // draw something on the canvas
+    }
+</script>
+
+
+</head>
+<body onload="init()">
+    <canvas id="theCanvas" width="600" height="600"></canvas>
+</body>
+</html>
