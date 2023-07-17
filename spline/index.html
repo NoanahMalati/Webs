@@ -26,7 +26,6 @@
       var theta=(2*Math.PI)/n;
       graphics.beginPath();
       graphics.moveTo(cx+r*Math.cos(1*theta), cy+r*Math.sin(1*theta));
-      //var loc=findEdge(cx+r*Math.cos(1*theta), cy+r*Math.sin(1*theta), cx, cy);
         graphics.font = "15px Arial";
         graphics.fillStyle="Black"
         graphics.fillText(vertice[0], cx+r*Math.cos(1*theta), cy+r*Math.sin(1*theta))
@@ -35,7 +34,7 @@
         graphics.fillText(array[0], cx+r*Math.cos(1.5*theta), cy+r*Math.sin(1.5*theta))
       for(var i=2; i< n+1; i++){
         graphics.lineTo(cx+r*Math.cos(i*theta), cy+r*Math.sin(i*theta));
-        //loc=findEdge(cx+r*Math.cos(i*theta), cy+r*Math.sin(i*theta), cx, cy);
+    
         //console.log(loc[0], loc[1])
         graphics.font = "15px Arial";
         graphics.fillStyle="Black"
@@ -51,11 +50,11 @@
     }
 
 
-  function drawPolygons(array){
+  function drawPolygons(array, choice){
     var n= array.length;
     var x= 0;
     var y= 0; 
-    var vertices =findBasic(array);
+    var vertices =findBasic(array, choice);
     for(var i = 0; i< n; i++){
       if (75+x*125>400){
         y+=1;
@@ -66,7 +65,7 @@
     }
   }
 
-  function findBasic(array){
+  function findBasic(array, choice){
     var n= array.length
     var basic =new Array(array.length)
     for (var i = 0; i < array.length; i++) {
@@ -83,15 +82,28 @@
         basic[i].push(0)
       }
       var num =0;
-      var times = 0;
+      //var times = 0;
       for(var j =i; j<n-2; j++){
-        if(times%2==0){
-          num += array[j-1];
+
+        if(num == 0){
+          num+= array[j-1]
+        }
+        else if(num > 0){
+          num = minus(num, array[j-1], choice)
         }
         else{
-          num -= array[j-1];
+          num = addition(num, array[j-1], choice)
         }
-        times++
+        // if(times%2==0){
+        //   num += array[j-1];
+        // }
+        // else{
+        //   num -= array[j-1];
+        // }
+        // times++
+        // if (num ==0){
+        //   num += array[j-1]
+        // }
         basic[i].push(num)
       }
       var num1;
@@ -101,11 +113,13 @@
       var plus_minus_num1, plus_minus_num2, plus_plus_num1, plus_plus_num2, minus_plus_num1, minus_plus_num2, minus_minus_num1, minus_minus_num2
       var plus_possible_num1;
       var minus_possible_num1;
+      num1_plus = possible_plus_num1(num, array[n-2], array[n-3])
       for(var x=1; x<=array[n-2]; x++){
-        num1= num+array[n-3]*x
+        num1= num1_plus[x-1]
+        //console.log(num1)
         for(var y=1; y<=array[n-1]; y++){
           num2= num1-array[n-2]*y
-          if(num2%array[n-1]==0){
+          if(num2%array[n-1]==0 && !((!choice) && (num1==0 || num2==0) )){
             plus_minus_num1=num1;
             plus_minus_num2=num2
             br= true;
@@ -114,7 +128,7 @@
         }
         for(var y=1; y<=array[n-1]; y++){
           num2= num1+array[n-2]*y
-          if(num2%array[n-1]==0){
+          if(num2%array[n-1]==0 && !((!choice) && (num1==0 || num2==0) )){
             plus_plus_num1=num1;
             plus_plus_num2=num2
             be= true;
@@ -127,11 +141,13 @@
       }
       var bt=false
       var bw=false
+      num1_minus= possible_minus_num1(num, array[n-2], array[n-3])
       for(var x=1; x<=array[n-2]; x++){
-        num1= num-array[n-3]*x
+        num1= num1_minus[x-1]
         for(var y=1; y<=array[n-1]; y++){
           num2= num1+array[n-2]*y
-          if(num2%array[n-1]==0){
+          if(num2%array[n-1]==0 && !((!choice) && (num1==0 || num2==0) )){
+            //num1!=0 && num2!=0
             minus_plus_num1=num1;
             minus_plus_num2=num2
             bt= true;
@@ -140,10 +156,12 @@
         }
         for(var y=1; y<=array[n-1]; y++){
           num2= num1-array[n-2]*y
-          if(num2%array[n-1]==0){
+          //console.log(num2)
+          //console.log("   "+array[n-1])
+          if(num2%array[n-1]==0 && !((!choice) && (num1==0 || num2==0) )){
             minus_minus_num1=num1;
             minus_minus_num2=num2
-            bt= true;
+            bw= true;
             break;
           }
         }
@@ -154,17 +172,18 @@
       }
 
       var min = Math.min(Math.abs(plus_plus_num1)+Math.abs(plus_plus_num2), Math.abs(plus_minus_num1)+Math.abs(plus_minus_num2),Math.abs(minus_minus_num1)+Math.abs(minus_minus_num2),Math.abs(minus_plus_num1)+Math.abs(minus_plus_num2))
+      //console.log(min)
 
-      // var choice = [Math.abs(plus_plus_num1)+Math.abs(plus_plus_num2), Math.abs(plus_minus_num1)+Math.abs(plus_minus_num2),Math.abs(minus_minus_num1)+Math.abs(minus_minus_num2),Math.abs(minus_plus_num1)+Math.abs(minus_plus_num2)]
+       var cho = [Math.abs(plus_plus_num1)+Math.abs(plus_plus_num2), Math.abs(plus_minus_num1)+Math.abs(plus_minus_num2),Math.abs(minus_minus_num1)+Math.abs(minus_minus_num2),Math.abs(minus_plus_num1)+Math.abs(minus_plus_num2)]
 
 
-      // console.log(minus_minus_num1)
-      // console.log(minus_minus_num2)
+      //  console.log(minus_minus_num1)
+      //  console.log(minus_minus_num2)
   
       // console.log(minus_plus_num1)
       // console.log(minus_plus_num2)
       
-      // console.log(choice)
+      //console.log(cho)
 
       
       if(min==Math.abs(plus_plus_num1)+Math.abs(plus_plus_num2)){
@@ -189,11 +208,84 @@
       
     }
     for (var i = 0; i< n; i++){
-        console.log(basic[i])
+        //console.log(basic[i])
       }
-      return basic
+    return basic
   }
 
+  function addition(num, array_num, choice){
+    new_num= num+array_num
+    console.log("add"+String(new_num))
+    if(Math.abs(new_num)> Math.abs(num)){
+      if((!choice) && num==0){
+        return new_num
+      }
+      return num
+    }
+    return addition(new_num, array_num, choice)
+  }
+
+
+  function minus(num, array_num, choice){
+    //console.log(choice)
+    new_num= num-array_num
+    //console.log(new_num)
+    if(Math.abs(new_num)> Math.abs(num)){
+      if((!choice) && num ==0){
+        //console.log(true)
+        return new_num
+      }
+      return num
+    }
+    return minus(new_num, array_num, choice)
+  }
+
+
+   function possible_plus_num1(num, n_2, n_3){
+        array = []
+        for (var x=1; x<=n_2; x++){
+          array.push(num+n_3*x)
+        }
+        array= rearrange(array, array.length, 0)
+     //console.log(array)
+        return array
+      }
+
+  function possible_minus_num1(num, n_2, n_3){
+        array = []
+        for (var x=1; x<=n_2; x++){
+          array.push(num-n_3*x)
+        }
+        array= rearrange(array, array.length, 0)
+       //console.log(array)
+        return array
+      }
+
+  
+  function rearrange(arr,n,x){
+    let m = new Map();
+     
+    // Store values in a map with the difference
+            // with X as key
+            for (let i = 0; i < n; i++)
+            {
+                m.set(arr[i],Math.abs(x-arr[i]));
+            }
+              
+            let m1 = new Map([...m.entries()].sort((a, b) =>
+            a[1] - b[1]));
+             
+            // Update the values of array
+            let index = 0;
+            for (let [key, value] of m1.entries())
+            {
+                arr[index++] =key
+            }
+  return arr
+}
+
+
+  
   function gcd(x,y) { 
     x = Math.abs(x);
     y = Math.abs(y);
@@ -209,121 +301,48 @@
   function lcm(x,y) { 
     return x*y/gcd(x,y); 
   }
-
-  function findEdge(x_1,y_1,cx_1,cy_1){
-    var loc_x, loc_y;
-    var x= Math.floor(x_1)
-    var y= Math.floor(y_1)
-    var cx= Math.floor(cx_1)
-    var cy= Math.floor(cy_1)
-    if(cx==x){
-      loc_x=cx
-      if(cy>y){
-        loc_y=y-7
-      }
-      else{
-        loc_y=y+7
-      }
-      //return [loc_x,loc_y]
-    }
-    else if(cy==y){
-      loc_y=cy
-      if(cy>x){
-        loc_x=x-7
-      }
-      else{
-        loc_x=x+7
-      }
- 
-      //return [loc_x,loc_y]
-    }
-    else{
-      if(cx>x){
-        loc_x=x-7
-        if(cy>y){
-          loc_y=y-7
-        }
-        else{
-          loc_y=y+7
-        }
-      }
-      else{
-        loc_x=x+7
-        if(cy>y){
-          loc_y=y-7
-        }
-        else{
-          loc_y=y+7
-        }
-      }
-    }
-    return [loc_x,loc_y]
-  }
-
-  function findEdge_2(x_1,y_1,cx_1,cy_1){
-    var loc_x, loc_y;
-    var x= Math.floor(x_1)
-    var y= Math.floor(y_1)
-    var cx= Math.floor(cx_1)
-    var cy= Math.floor(cy_1)
-    if(cx==x){
-      loc_x=cx
-      if(cy>y){
-        loc_y=y-5
-      }
-      else{
-        loc_y=y+5
-      }
-      return [loc_x,loc_y]
-    }
-    else if(cy==y){
-      loc_y=cy
-      if(cy>x){
-        loc_x=x-5
-      }
-      else{
-        loc_x=x+5
-      }
-      return [loc_x,loc_y]
-    }
-    else{
-      if(cx>x){
-        loc_x=x+5
-        if(cy>y){
-          loc_y=y+5
-        }
-        else{
-          loc_y=y-5
-        }
-      }
-      else{
-        loc_x=x-5
-        if(cy>y){
-          loc_y=y+5
-        }
-        else{
-          loc_y=y-5
-        }
-      }
-    }
-    return [loc_x,loc_y]
-  }
-
     
-    function draw() {
+    function draw(array_e, choice) {
         // make sure to color the background first, since it doesn't have a default color
         graphics.fillStyle = backgroundColor;
         graphics.fillRect(0,0,canvas.width,canvas.height);
-        var array =[5,7,7,4]
-        drawPolygons(array);
+        var array =array_e
+        drawPolygons(array, choice);
     }
 
     function init() {
         canvas = document.getElementById("theCanvas");
         graphics = canvas.getContext("2d");
+
+        var number = prompt("What's the degree of the spline");
+        number = parseInt(number)
+        while(!number || number <3){
+          number = prompt("Not in our range. Please re-enter")
+          number = parseInt(number)
+        }
+
+        array_e = []
+
+        for (var x= 1; x<=number; x++){
+          var e = prompt("please input e" + String(x))
+          e=parseInt(e)
+          while(!e){
+            e = prompt("Not an integer. Please re-enter e"+String(x))
+            e = parseInt(e)
+          }
+          array_e.push(e)
+        }
+
+        choice = confirm("Do you want zeros?")
+        //choice_2 = confirm("Do you accept same numbers?")
+        //console.log(array_e)
+        //console.log(choice)
       
-        draw();  // draw something on the canvas
+        draw(array_e, choice);  // draw something on the canvas
+
+
     }
+
 </script>
 
 
