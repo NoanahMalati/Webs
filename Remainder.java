@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-//final edge label = num
-//prev edge label = increaseBy
 public class Remainder {
     public void getRemainder(int finalEdgeLabel, int divisor) {
         int numInitial = finalEdgeLabel;
